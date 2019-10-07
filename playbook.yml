@@ -1,0 +1,34 @@
+---
+- hosts: all
+  remote_user: ubuntu
+  become_method: sudo
+  become: true
+  vars:
+    project_dir: home/ubuntu/johnpapa
+  tasks:
+  - name: Get Nodejs gpg key 
+    apt_key: 
+      url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key" 
+      state: present  
+  - name: Install Nodejs version 10 binary 
+    apt_repository: 
+      repo: "deb https://deb.nodesource.com/node_10.x {{ ansible_distribution_release }} main" 
+      state: present  
+  - name: Install Node 
+    apt: 
+      name: nodejs 
+      state: present
+  - name: git clone repository
+    git:
+      repo: https://github.com/johnpapa/node-hello.git
+      dest: "{{ project_dir }}"
+  - name: Install project dependencies
+    shell: |
+      npm install
+    args:
+      chdir: "{{ project_dir }}"
+  - name: Start application
+    shell: |
+      npm start
+    args:
+      chdir: "{{ project_dir }}"
